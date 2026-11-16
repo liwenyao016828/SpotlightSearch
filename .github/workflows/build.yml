@@ -53,10 +53,5 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           $tag = "${{ github.ref_name }}"
-          gh release create $tag `
-            "SpotlightSearch-$tag-win-x64.zip" `
-            "SpotlightSearch-$tag-win-x64-lite.zip" `
-            --title "SpotlightSearch $tag" `
-            --notes "两个包：
-- SpotlightSearch-$tag-win-x64.zip — 自包含，无需 .NET 运行时（体积大）
-- SpotlightSearch-$tag-win-x64-lite.zip — 需要已安装 .NET 10 Desktop Runtime（约 0.5 MB）"
+          $notes = "Self-contained: no .NET runtime needed (larger). Lite: needs .NET 10 Desktop Runtime (~0.5 MB)."
+          gh release create $tag "SpotlightSearch-$tag-win-x64.zip" "SpotlightSearch-$tag-win-x64-lite.zip" --title "SpotlightSearch $tag" --notes $notes
