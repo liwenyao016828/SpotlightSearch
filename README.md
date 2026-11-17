@@ -12,13 +12,20 @@
 
 ## 下载安装
 
-到 [Releases](https://github.com/liwenyao016828/SpotlightSearch/releases) 下载，三选一：
+到 [Releases](https://github.com/liwenyao016828/SpotlightSearch/releases) 下载，任选其一：
 
 | 文件 | 说明 |
 |---|---|
-| `Spotlight-x.y.z-setup.exe` | **推荐**。双击安装，per-user 装到 `%LOCALAPPDATA%\Programs\Spotlight`，**不需要管理员权限、不需要 .NET 运行时**；装完自动开机启动，卸载走「应用和功能」 |
+| `Spotlight-x.y.z-lite-setup.exe` | **推荐（机器已装 .NET 10 时）**。约 2.4MB 的双击安装包，per-user 免管理员；依赖系统 .NET 10 桌面运行时，缺失时会提示下载 |
+| `Spotlight-x.y.z-setup.exe` | 完全体安装包（61MB），自带 .NET 10 运行时和 WPF，到没装 .NET 的机器也能装 |
 | `SpotlightSearch-vX-win-x64.zip` | 绿色包，自包含（免运行时），解压双击 `SpotlightSearch.exe` |
-| `SpotlightSearch-vX-win-x64-lite.zip` | 精简包，需要 .NET 10 桌面运行时，体积小 |
+| `SpotlightSearch-vX-win-x64-lite.zip` | 精简绿色包（0.33MB），需要 .NET 10 桌面运行时 |
+
+两种安装包都是 per-user 装到 `%LOCALAPPDATA%\Programs\Spotlight`，不需要管理员权限；
+开始菜单快捷方式、可选的桌面图标和开机自启，卸载走「应用和功能」。
+
+自包含版体积大不是程序本身大（你的代码只有 0.6MB），而是 .NET 10 运行时 + WPF
+框架整个被打进去了；这也是 WPF 程序无法像 Rust/egui 那样做到几 MB 的原因。
 
 ---
 

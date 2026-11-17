@@ -19,6 +19,12 @@
   #define OutputDir "..\dist"
 #endif
 
+; LiteBuild=1 时打包 publish\fdd（依赖系统 .NET 10 桌面运行时，约 0.6 MB）
+; LiteBuild=0 时打包 publish\scd（自包含，约 66 MB）
+#ifndef LiteBuild
+  #define LiteBuild 0
+#endif
+
 #define MyAppName "Spotlight"
 #define MyAppExeName "SpotlightSearch.exe"
 #define MyAppPublisher "liwenyao016828"
@@ -53,7 +59,11 @@ CloseApplications=no
 RestartApplications=no
 
 OutputDir={#OutputDir}
+#if LiteBuild
+OutputBaseFilename=Spotlight-{#MyAppVersion}-lite-setup
+#else
 OutputBaseFilename=Spotlight-{#MyAppVersion}-setup
+#endif
 SetupIconFile=..\src\SpotlightSearch\Assets\app.ico
 UninstallDisplayIcon={app}\{#MyAppExeName}
 UninstallDisplayName={#MyAppName} {#MyAppVersion}
@@ -100,6 +110,46 @@ Filename: "{sys}\taskkill.exe"; Parameters: "/F /IM {#MyAppExeName}"; Flags: run
 Type: filesandordirs; Name: "{app}"
 
 [Code]
+#if LiteBuild
+{ 精简版依赖系统 .NET 10 桌面运行时；缺失时给出下载地址并退出 }
+function HasNet10Desktop(): Boolean;
+var
+  dirs: array[0..1] of String;
+  i: Integer;
+  sr: TFindRec;
+begin
+  dirs[0] := ExpandConstant('{pf}\dotnet\shared\Microsoft.WindowsDesktop.App');
+  dirs[1] := ExpandConstant('{localappdata}\Microsoft\dotnet\shared\Microsoft.WindowsDesktop.App');
+  Result := False;
+  for i := 0 to 1 do
+  begin
+    if FindFirst(AddBackslash(dirs[i]) + '10.*', sr) then
+    begin
+      FindClose(sr);
+      Result := True;
+      Exit;
+    end;
+  end;
+end;
+
+function InitializeSetup(): Boolean;
+var
+  code: Integer;
+begin
+  Result := True;
+  if not HasNet10Desktop() then
+  begin
+    MsgBox('当前系统未安装 .NET 10 桌面运行时，精简版无法启动。' + #13#10 +
+           '安装程序将打开运行时下载页，装好后请重新运行本安装程序。' + #13#10 +
+           '（或者改下载自包含版 setup.exe，无需运行时）',
+           mbError, MB_OK);
+    ShellExec('open', 'https://dotnet.microsoft.com/download/dotnet/10.0',
+              '', '', SW_SHOWNORMAL, ewNoWait, code);
+    Result := False;
+  end;
+end;
+#endif
+
 { 覆盖安装时也要先结束旧进程，否则 Files 段写不进去 }
 function PrepareToInstall(var NeedsRestart: Boolean): String;
 var
