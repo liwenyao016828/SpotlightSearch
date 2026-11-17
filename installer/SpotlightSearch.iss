@@ -6,6 +6,11 @@
   #define MyAppVersion "0.0.0-dev"
 #endif
 
+; VersionInfoVersion 只接受纯数字（a.b.c.d），CI 会单独传一个干净的
+#ifndef VersionInfo
+  #define VersionInfo MyAppVersion
+#endif
+
 #ifndef SourceDir
   #define SourceDir "..\publish\scd"
 #endif
@@ -57,11 +62,11 @@ SolidCompression=yes
 WizardStyle=modern
 WizardSizePercent=110
 ShowLanguageDialog=auto
-VersionInfoVersion={#MyAppVersion}
+VersionInfoVersion={#VersionInfo}
 VersionInfoCompany={#MyAppPublisher}
 VersionInfoDescription={#MyAppName} 安装程序
 VersionInfoProductName={#MyAppName}
-VersionInfoProductVersion={#MyAppVersion}
+VersionInfoProductVersion={#VersionInfo}
 
 [Languages]
 Name: "chinesesimplified"; MessagesFile: "languages\ChineseSimplified.isl"

@@ -60,7 +60,8 @@ jobs:
         run: |
           $tag = "${{ github.ref_name }}"
           $ver = if ($tag -like 'v*') { $tag.Substring(1) } else { '0.0.0-dev' }
-          & $env:ISCC "/DMyAppVersion=$ver" "/DSourceDir=..\publish\scd" "/DOutputDir=..\dist" "installer\SpotlightSearch.iss"
+          $num = ($ver -replace '[^0-9.].*$', '')
+          & $env:ISCC "/DMyAppVersion=$ver" "/DVersionInfo=$num" "/DSourceDir=..\publish\scd" "/DOutputDir=..\dist" "installer\SpotlightSearch.iss"
           if ($LASTEXITCODE -ne 0) { throw "ISCC failed with exit code $LASTEXITCODE" }
           Get-ChildItem dist | Select-Object Name, Length
 

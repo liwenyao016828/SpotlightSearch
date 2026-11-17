@@ -10,7 +10,19 @@
 
 ---
 
-## 跑起来
+## 下载安装
+
+到 [Releases](https://github.com/liwenyao016828/SpotlightSearch/releases) 下载，三选一：
+
+| 文件 | 说明 |
+|---|---|
+| `Spotlight-x.y.z-setup.exe` | **推荐**。双击安装，per-user 装到 `%LOCALAPPDATA%\Programs\Spotlight`，**不需要管理员权限、不需要 .NET 运行时**；装完自动开机启动，卸载走「应用和功能」 |
+| `SpotlightSearch-vX-win-x64.zip` | 绿色包，自包含（免运行时），解压双击 `SpotlightSearch.exe` |
+| `SpotlightSearch-vX-win-x64-lite.zip` | 精简包，需要 .NET 10 桌面运行时，体积小 |
+
+---
+
+## 跑起来（从源码）
 
 需要 .NET 10 桌面运行时（`Microsoft.WindowsDesktop.App`）。
 
