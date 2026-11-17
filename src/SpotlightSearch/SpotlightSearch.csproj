@@ -11,6 +11,7 @@
     <AssemblyName>SpotlightSearch</AssemblyName>
     <RootNamespace>SpotlightSearch</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\app.ico</ApplicationIcon>
     <SatelliteResourceLanguages>zh-Hans;en</SatelliteResourceLanguages>
   </PropertyGroup>
 

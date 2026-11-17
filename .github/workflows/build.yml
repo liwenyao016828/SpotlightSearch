@@ -41,10 +41,35 @@ jobs:
           Compress-Archive -Path publish/scd/* -DestinationPath "SpotlightSearch-$tag-win-x64.zip"
           Get-ChildItem *.zip | Select-Object Name, Length
 
+      - name: Install Inno Setup
+        shell: pwsh
+        run: |
+          [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+          $url = 'https://github.com/jrsoftware/issrc/releases/download/is-7_1_1/innosetup-7.1.1-x64.exe'
+          $exe = Join-Path $env:RUNNER_TEMP 'innosetup.exe'
+          Invoke-WebRequest -Uri $url -OutFile $exe
+          Start-Process -FilePath $exe -ArgumentList '/VERYSILENT','/SUPPRESSMSGBOXES','/NORESTART','/SP-' -Wait
+          $iscc = Get-ChildItem "$env:ProgramFiles","${env:ProgramFiles(x86)}" -Recurse -Filter ISCC.exe -ErrorAction SilentlyContinue |
+            Select-Object -First 1 -ExpandProperty FullName
+          if (-not $iscc) { throw 'ISCC.exe not found after installing Inno Setup' }
+          "ISCC=$iscc" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          Write-Host "Inno Setup compiler: $iscc"
+
+      - name: Build installer
+        shell: pwsh
+        run: |
+          $tag = "${{ github.ref_name }}"
+          $ver = if ($tag -like 'v*') { $tag.Substring(1) } else { '0.0.0-dev' }
+          & $env:ISCC "/DMyAppVersion=$ver" "/DSourceDir=..\publish\scd" "/DOutputDir=..\dist" "installer\SpotlightSearch.iss"
+          if ($LASTEXITCODE -ne 0) { throw "ISCC failed with exit code $LASTEXITCODE" }
+          Get-ChildItem dist | Select-Object Name, Length
+
       - uses: actions/upload-artifact@v4
         with:
           name: SpotlightSearch-win-x64
-          path: '*.zip'
+          path: |
+            *.zip
+            dist/*.exe
 
       - name: Release (tags only)
         if: startsWith(github.ref, 'refs/tags/v')
@@ -53,5 +78,5 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           $tag = "${{ github.ref_name }}"
-          $notes = "Self-contained: no .NET runtime needed (larger). Lite: needs .NET 10 Desktop Runtime (~0.5 MB)."
-          gh release create $tag "SpotlightSearch-$tag-win-x64.zip" "SpotlightSearch-$tag-win-x64-lite.zip" --title "SpotlightSearch $tag" --notes $notes
+          $notes = "Self-contained: no .NET runtime needed (larger). Lite: needs .NET 10 Desktop Runtime (~0.5 MB). Setup: double-click installer (per-user, no admin)."
+          gh release create $tag "SpotlightSearch-$tag-win-x64.zip" "SpotlightSearch-$tag-win-x64-lite.zip" "dist/Spotlight-$($tag.Substring(1))-setup.exe" --title "SpotlightSearch $tag" --notes $notes
